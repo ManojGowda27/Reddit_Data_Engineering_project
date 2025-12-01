@@ -28,6 +28,24 @@ The pipeline is designed to:
 6. **Amazon Athena**: SQL-based data transformation.
 7. **Amazon Redshift**: Data warehousing and analytics.
 
+## Architectural Design Decisions
+
+### 1. The Lakehouse Pattern (S3 + Redshift)
+* **Design:** I implemented a "Bronze/Silver" data lake architecture.
+    * **Raw Zone (Bronze):** Stores the immutable JSON extracted directly from the Reddit API.
+    * **Transformed Zone (Silver):** Stores the cleaned, Parquet-formatted data after AWS Glue processing.
+* **Reasoning:** This separation allows me to re-process the raw data if business logic changes without needing to query the API again (which ensures idempotency).
+
+### 2. Schema Evolution with Glue Crawlers
+* **Challenge:** Social media APIs frequently change their response structure (adding/removing fields).
+* **Solution:** Instead of hard-coding schemas, I utilized **AWS Glue Crawlers** to scan the S3 buckets. The Crawlers automatically infer the schema and update the **AWS Data Catalog**. This allows the Glue ETL jobs to use a dynamic frame that adapts to schema drifts without breaking the pipeline.
+
+### 3. Dual Consumption Layers (Athena vs. Redshift)
+* **Design:** The pipeline exposes data via both Amazon Athena and Redshift.
+* **Trade-off Analysis:**
+    * **Athena:** Used for low-cost, ad-hoc analysis directly on S3 data (serverless).
+    * **Redshift:** Used as the Data Warehouse for high-concurrency BI reporting (PowerBI/Tableau), providing faster query performance for aggregations than scanning S3 files repeatedly.
+
 ## Prerequisites
 - AWS Account with appropriate permissions for S3, Glue, Athena, and Redshift.
 - Reddit API credentials.
