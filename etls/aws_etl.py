@@ -1,10 +1,8 @@
 import sys
 import logging
-from typing import Optional
-
 import s3fs
 
-# 1. Setup Logging
+# Setup Logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -25,12 +23,11 @@ def connect_to_s3(aws_access_key: str, aws_secret_key: str) -> s3fs.S3FileSystem
         return s3
     except Exception as e:
         logger.error(f"Failed to connect to S3: {e}")
-        raise e  # CRITICAL: Raise so Airflow knows the task failed
+        raise e
 
 def create_bucket_if_not_exists(s3: s3fs.S3FileSystem, bucket: str):
     """
-    Checks and creates bucket. 
-    Note: In production, Terraform usually handles this, so this is just a failsafe.
+    Checks and creates bucket.
     """
     try:
         if not s3.exists(bucket):
@@ -46,20 +43,15 @@ def upload_to_s3(s3: s3fs.S3FileSystem, file_path: str, bucket: str, s3_file_nam
     """
     Uploads a local file to the 'raw' folder in S3.
     """
-    # Define destination path explicitly
     s3_dest_path = f"{bucket}/raw/{s3_file_name}"
     
     try:
         logger.info(f"Uploading {file_path} to s3://{s3_dest_path}...")
-        
-        # s3.put manages the upload
         s3.put(file_path, s3_dest_path)
-        
         logger.info("Upload successful.")
-        
     except FileNotFoundError:
         logger.error(f"Local file not found: {file_path}")
-        raise FileNotFoundError(f"The file {file_path} was not found on the worker node.")
+        raise FileNotFoundError(f"The file {file_path} was not found.")
     except Exception as e:
         logger.error(f"S3 Upload failed: {e}")
         raise e
