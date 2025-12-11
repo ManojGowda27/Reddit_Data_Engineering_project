@@ -9,7 +9,7 @@ A production-grade ETL pipeline that extracts Reddit data, transforms it using s
 Unlike standard scripts, this pipeline is built with **scalability** and **reliability** as core tenets:
 
 * **Atomic ETL Design:** Combined Extraction and S3 Upload into a single atomic task to prevent race conditions in distributed environments (Celery Executors).
-* **Memory Efficiency ($O(1)$):** Utilizes Python **Generators** (`yield`) to stream data row-by-row, ensuring constant memory usage regardless of dataset size.
+* **Memory Efficiency (O(1)):** Utilizes Python **Generators** (`yield`) to stream data row-by-row, ensuring constant memory usage regardless of dataset size.
 * **Idempotency:** Implements "Upsert" logic in Redshift to ensure re-running the pipeline does not create duplicate records.
 * **Object-Oriented Design:** Encapsulates external API logic in a modular `RedditClient` class for better state management and testability.
 * **Automated CI/CD:** GitHub Actions workflow automatically runs `pytest` suites on every push to ensure code stability.
