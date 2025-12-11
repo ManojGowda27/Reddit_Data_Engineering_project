@@ -2,7 +2,7 @@
 
 A production-grade ETL pipeline that extracts Reddit data, transforms it using streaming logic, and loads it into an AWS Lakehouse architecture (S3 + Redshift). Orchestrated by Apache Airflow with robust CI/CD and automated unit testing.
 
-![System Architecture](assets/Reddit_DataEngineering.png)
+![System Architecture](assets/Reddit_Data_Engineering.png)
 
 ## 🚀 Key Engineering Features
 
