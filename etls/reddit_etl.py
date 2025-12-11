@@ -2,7 +2,7 @@ import sys
 import os
 import csv
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Iterator, Dict, Any
 
 import praw
@@ -58,21 +58,30 @@ class RedditClient:
             logger.error(f"RedditClient: Extraction error: {e}")
             raise e
 
+# In etls/reddit_etl.py
+
 def transform_post(post: Dict[str, Any]) -> Dict[str, Any]:
     """Pure Python Transformation Logic"""
     if post.get('created_utc'):
-        post['created_utc'] = datetime.utcfromtimestamp(post['created_utc']).isoformat()
+        # FIX: Use timezone-aware UTC generation
+        # This creates a timestamp that explicitly knows it is UTC
+        post['created_utc'] = datetime.fromtimestamp(
+            post['created_utc'], tz=timezone.utc
+        ).isoformat()
     
+    # ... rest of your logic stays the same ...
+    # (Ensure you keep the robust 'or 0' logic we just fixed!)
+    post['num_comments'] = int(post.get('num_comments') or 0)
+    post['score'] = int(post.get('score') or 0)
+    post['author'] = str(post.get('author') or 'Unknown')
+    post['title'] = str(post.get('title') or '').strip()
     post['over_18'] = bool(post.get('over_18', False))
     post['spoiler'] = bool(post.get('spoiler', False))
     post['stickied'] = bool(post.get('stickied', False))
-    post['author'] = str(post.get('author', 'Unknown'))
-    post['num_comments'] = int(post.get('num_comments', 0))
-    post['score'] = int(post.get('score', 0))
-    post['title'] = str(post.get('title', '')).strip()
     
     edited_val = post.get('edited')
     post['edited'] = edited_val if isinstance(edited_val, bool) else False
+    
     return post
 
 def reddit_pipeline_logic(file_name: str, subreddit: str, time_filter: str, limit: int = None, **kwargs):
