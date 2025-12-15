@@ -35,6 +35,8 @@ Unlike standard scripts, this pipeline is built with **scalability** and **relia
 * **Unit Tests:** Validates transformation logic (timestamps, type casting) to ensure data quality.
 * **Mocking:** Uses `unittest.mock` to simulate Reddit API responses, allowing the test suite to run in CI environments without internet access or API credentials.
 
+*Interested in the engineering decisions behind this project? Read the [Architecture Evolution Case Study](ARCHITECTURE_EVOLUTION.md) to see how I optimized for memory and distributed reliability*
+
 ## ⚙️ Setup & Installation
 
 ### 1. Environment Variables
